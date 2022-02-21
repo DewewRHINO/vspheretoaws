@@ -1,0 +1,10 @@
+[
+  {
+    "Description": "Blog",
+    "Format": "ova",
+    "UserBucket": {
+        "S3Bucket": "chetapichart",
+        "S3Key": "<name of ova with extension>"
+    }
+  }
+]
