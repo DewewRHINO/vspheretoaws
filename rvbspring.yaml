@@ -1,0 +1,258 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Template to Create OnDemand EC2 Fleet using LaunchTemplate
+
+Parameters:
+  # ImageId:
+  #   Type: String
+  #   Description: 'Image you want to run'
+  #   Default: 'ami-05057141c23ed39af'
+  # SecurityGroupId:
+  #   Type: String
+  #   Description: security group, add your security group id here
+  #   Default: 'sg-02100cef21a8385a7'
+  SubnetId:
+    Type: String
+    Description: Subnet Id in which to launch the EC2 Fleet
+    Default: 'subnet-00989bbec2d194b9d'
+  PodNumber:
+    Type: String
+    Description: Pod number.
+    Default: '1'
+  # InstanceType:
+  #   Type: String
+  #   Description: Instance Type you want to deploy
+  #   Default: 't2.large'
+  # SSHKeyName:
+  #   Description: SSH Keypair to login to the instance
+  #   Type: AWS::EC2::KeyPair::KeyName
+  #   Default: rvbspring
+    
+
+Resources:
+
+  # Creates Launch Template
+  EC2FleetLaunchMailTemplate:
+    Type: 'AWS::EC2::LaunchTemplate'
+    Properties:
+      LaunchTemplateName: EC2Fleet-LaunchMailTemplate  
+      LaunchTemplateData:
+         ImageId: 'ami-05057141c23ed39af'
+         InstanceType: 't2.large'
+         KeyName: 'rvbspring'
+         NetworkInterfaces:
+           - DeviceIndex: '0'
+             AssociatePublicIpAddress: false
+             PrivateIpAddress: !Join [ "", [ "192.168.", !Ref PodNumber , ".24" ] ]
+             DeleteOnTermination: true
+             SubnetId: !Ref SubnetId           
+
+  # Lauches the EC2 instance. 
+  LaunchEC2MailFleet:
+    Type: AWS::EC2::EC2Fleet
+    Properties: 
+      LaunchTemplateConfigs: 
+        - {
+            "LaunchTemplateSpecification": 
+            {
+               "Version": "$Latest",
+               "LaunchTemplateId": !Ref EC2FleetLaunchMailTemplate
+            }
+          }
+      TagSpecifications: 
+        - {
+          "ResourceType" : "instance",
+          "Tags" : [{"Key": "Name","Value": !Join [" ", ["Mail", !Ref PodNumber]]}]
+        }
+      TargetCapacitySpecification: {"DefaultTargetCapacityType": "on-demand", "OnDemandTargetCapacity": 1, "TotalTargetCapacity": 1 }
+      Type: "instant"
+    DependsOn: EC2FleetLaunchMailTemplate
+
+  # Creates Launch Template
+  EC2FleetLaunchDirectoryTemplate:
+    Type: 'AWS::EC2::LaunchTemplate'
+    Properties:
+      LaunchTemplateName: EC2Fleet-LaunchDirectoryTemplate  
+      LaunchTemplateData:
+         ImageId: 'ami-099aae9e7db2ef96f'
+         InstanceType: 't2.large'
+         KeyName: 'rvbspringwindows'
+         NetworkInterfaces:
+           - DeviceIndex: '0'
+             AssociatePublicIpAddress: false
+             DeleteOnTermination: true
+             PrivateIpAddress: !Join [ "", [ "192.168.", !Ref PodNumber , ".5" ] ]
+             SubnetId: !Ref SubnetId           
+
+  # Lauches the EC2 instance. 
+  LaunchEC2DirectoryFleet:
+    Type: AWS::EC2::EC2Fleet
+    Properties: 
+      LaunchTemplateConfigs: 
+        - {
+            "LaunchTemplateSpecification": 
+            {
+               "Version": "$Latest",
+               "LaunchTemplateId": !Ref EC2FleetLaunchDirectoryTemplate
+            }
+          }
+      TagSpecifications: 
+        - {
+          "ResourceType" : "instance",
+          "Tags" : [{"Key": "Name","Value": !Join [" ", ["Directory", !Ref PodNumber]]}]
+        }
+          
+      TargetCapacitySpecification: {"DefaultTargetCapacityType": "on-demand", "OnDemandTargetCapacity": 1, "TotalTargetCapacity": 1 }
+      Type: "instant"
+    DependsOn: EC2FleetLaunchDirectoryTemplate
+
+  # Creates Launch Template
+  EC2FleetLaunchDatabaseTemplate:
+    Type: 'AWS::EC2::LaunchTemplate'
+    Properties:
+      LaunchTemplateName: EC2Fleet-LaunchDatabaseTemplate  
+      LaunchTemplateData:
+         ImageId: 'ami-03352f965ba575220'
+         InstanceType: 't2.large'
+         KeyName: 'rvbspring'
+         NetworkInterfaces:
+           - DeviceIndex: '0'
+             AssociatePublicIpAddress: false
+             DeleteOnTermination: true
+             PrivateIpAddress: !Join [ "", [ "192.168.", !Ref PodNumber , ".25" ] ]
+             SubnetId: !Ref SubnetId           
+
+  # Lauches the EC2 instance. 
+  LaunchEC2DatabaseFleet:
+    Type: AWS::EC2::EC2Fleet
+    Properties: 
+      LaunchTemplateConfigs: 
+        - {
+            "LaunchTemplateSpecification": 
+            {
+               "Version": "$Latest",
+               "LaunchTemplateId": !Ref EC2FleetLaunchDatabaseTemplate
+            }
+          }
+      TagSpecifications: 
+        - {
+          "ResourceType" : "instance",
+          "Tags" : [{"Key": "Name","Value": !Join [" ", ["Database", !Ref PodNumber]]}]
+        }
+          
+      TargetCapacitySpecification: {"DefaultTargetCapacityType": "on-demand", "OnDemandTargetCapacity": 1, "TotalTargetCapacity": 1 }
+      Type: "instant"
+    DependsOn: EC2FleetLaunchDatabaseTemplate
+
+  # Creates Launch Template
+  EC2FleetLaunchBlogTemplate:
+    Type: 'AWS::EC2::LaunchTemplate'
+    Properties:
+      LaunchTemplateName: EC2Fleet-LaunchBlogTemplate  
+      LaunchTemplateData:
+         ImageId: 'ami-070f5ac7c1ac51b37'
+         InstanceType: 't2.large'
+         KeyName: 'rvbspring'
+         NetworkInterfaces:
+           - DeviceIndex: '0'
+             AssociatePublicIpAddress: false
+             DeleteOnTermination: true
+             PrivateIpAddress: !Join [ "", [ "192.168.", !Ref PodNumber , ".26" ] ]
+             SubnetId: !Ref SubnetId           
+
+  # Lauches the EC2 instance. 
+  LaunchEC2BlogFleet:
+    Type: AWS::EC2::EC2Fleet
+    Properties: 
+      LaunchTemplateConfigs: 
+        - {
+            "LaunchTemplateSpecification": 
+            {
+               "Version": "$Latest",
+               "LaunchTemplateId": !Ref EC2FleetLaunchBlogTemplate
+            }
+          }
+      TagSpecifications: 
+        - {
+          "ResourceType" : "instance",
+          "Tags" : [{"Key": "Name","Value": !Join [" ", ["Blog", !Ref PodNumber]]}]
+        }
+          
+      TargetCapacitySpecification: {"DefaultTargetCapacityType": "on-demand", "OnDemandTargetCapacity": 1, "TotalTargetCapacity": 1 }
+      Type: "instant"
+    DependsOn: EC2FleetLaunchBlogTemplate
+
+  # Creates Launch Template
+  EC2FleetLaunchPaperboyTemplate:
+    Type: 'AWS::EC2::LaunchTemplate'
+    Properties:
+      LaunchTemplateName: EC2Fleet-LaunchPaperboyTemplate  
+      LaunchTemplateData:
+         ImageId: 'ami-0e8e1cd035b3d8306'
+         InstanceType: 't2.large'
+         KeyName: 'rvbspring'
+         NetworkInterfaces:
+           - DeviceIndex: '0'
+             AssociatePublicIpAddress: false
+             DeleteOnTermination: true
+             PrivateIpAddress: !Join [ "", [ "192.168.", !Ref PodNumber , ".37" ] ]
+             SubnetId: !Ref SubnetId           
+
+  # Lauches the EC2 instance. 
+  LaunchEC2PaperboyFleet:
+    Type: AWS::EC2::EC2Fleet
+    Properties: 
+      LaunchTemplateConfigs: 
+        - {
+            "LaunchTemplateSpecification": 
+            {
+               "Version": "$Latest",
+               "LaunchTemplateId": !Ref EC2FleetLaunchPaperboyTemplate
+            }
+          }
+      TagSpecifications: 
+        - {
+          "ResourceType" : "instance",
+          "Tags" : [{"Key": "Name","Value": !Join [" ", ["Paperboy", !Ref PodNumber]]}]
+        }
+          
+      TargetCapacitySpecification: {"DefaultTargetCapacityType": "on-demand", "OnDemandTargetCapacity": 1, "TotalTargetCapacity": 1 }
+      Type: "instant"
+    DependsOn: EC2FleetLaunchPaperboyTemplate
+
+  # Creates Launch Template
+  EC2FleetLaunchStoreTemplate:
+    Type: 'AWS::EC2::LaunchTemplate'
+    Properties:
+      LaunchTemplateName: EC2Fleet-LaunchStoreTemplate  
+      LaunchTemplateData:
+         ImageId: 'ami-0f9ee99661368e0ac'
+         InstanceType: 't2.large'
+         KeyName: 'rvbspring'
+         NetworkInterfaces:
+           - DeviceIndex: '0'
+             AssociatePublicIpAddress: false
+             DeleteOnTermination: true
+             PrivateIpAddress: !Join [ "", [ "192.168.", !Ref PodNumber , ".23" ] ]
+             SubnetId: !Ref SubnetId           
+
+  # Lauches the EC2 instance. 
+  LaunchEC2StoreFleet:
+    Type: AWS::EC2::EC2Fleet
+    Properties: 
+      LaunchTemplateConfigs: 
+        - {
+            "LaunchTemplateSpecification": 
+            {
+               "Version": "$Latest",
+               "LaunchTemplateId": !Ref EC2FleetLaunchStoreTemplate
+            }
+          }
+      TagSpecifications: 
+        - {
+          "ResourceType" : "instance",
+          "Tags" : [{"Key": "Name","Value": !Join [" ", ["Store", !Ref PodNumber]]}]
+        }
+          
+      TargetCapacitySpecification: {"DefaultTargetCapacityType": "on-demand", "OnDemandTargetCapacity": 1, "TotalTargetCapacity": 1 }
+      Type: "instant"
+    DependsOn: EC2FleetLaunchStoreTemplate
